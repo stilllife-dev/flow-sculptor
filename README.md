@@ -5,7 +5,7 @@
 ![Preview](demo.gif)
 
 ## Demo
-[ここに公開後のURLを貼る]
+[[ここに公開後のURLを貼る]](https://stilllife-dev.github.io/flow-sculptor/)
 
 **FLOW SCULPTOR** は、繊細な複数のラインが干渉し合うことで、建築的かつ有機的な「層（レイヤー）」を描き出すジェネレーティブ・アート・ツールです。
 
