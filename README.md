@@ -2,7 +2,7 @@
 ### Generative Art for Interference and Filtration
 
 ### 🖼 Preview
-https://github.com/stilllife-dev/flow-sculptor/blob/main/demo.gif
+![Preview](demo.gif)
 
 ## Demo
 [ここに公開後のURLを貼る]
