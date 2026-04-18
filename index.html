@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flow Sculptor | Generative Art</title>
+<style>
+:root {
+  --bg: #0D0D0D;
+  --fg: #999999;
+  --fg-sub: #777777;
+  --accent: #555555;
+  --border: #222222;
+  --panel-bg: rgba(13, 13, 13, 0.95);
+  --font: 'Helvetica Neue', 'Inter', -apple-system, sans-serif;
+}
+
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  font-weight: 100 !important; 
+}
+
+html, body {
+  width: 100%; 
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+aside {
+  width: 440px; 
+  height: 100%;
+  background: var(--panel-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 60px 50px; 
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.hubs-title {
+  margin-bottom: 74px; 
+}
+
+h1 {
+  font-size: 20px;
+  letter-spacing: 12px;
+  color: var(--fg);
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+.toggle-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.toggle-group label {
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  background: #1a1a1a;
+  border-radius: 14px;
+  transition: background 0.4s, border 0.4s;
+  border: 1px solid var(--border);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: var(--fg-sub);
+  border-radius: 50%;
+  transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1), background 0.4s;
+}
+
+.toggle-group.active .toggle-switch {
+  background: #222222;
+  border: 1px solid var(--accent);
+}
+
+.toggle-group.active .toggle-switch::after {
+  transform: translateX(24px);
+  background: var(--fg);
+}
+
+.slider-group {
+  margin-bottom: 40px; 
+}
+
+.slider-group label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  color: var(--fg-sub);
+}
+
+.slider-group span.val {
+  color: var(--fg);
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  transition: background 0.4s;
+}
+
+input[type=range]:hover::-webkit-slider-runnable-track {
+  background: #333333;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 18px; 
+  width: 18px;
+  border-radius: 50%;
+  background: var(--fg-sub);
+  margin-top: -8px; 
+  cursor: grab;
+  transition: transform 0.2s, background 0.3s;
+}
+
+input[type=range]::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.2);
+  background: var(--fg);
+}
+
+button.download {
+  margin-top: auto;
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--fg-sub);
+  border-radius: 30px;
+  padding: 16px;
+  font-size: 10px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  width: 100%;
+}
+
+button.download:hover {
+  background: rgba(119, 119, 119, 0.05);
+  border-color: var(--fg);
+  color: var(--fg);
+}
+
+button.download:active {
+  transform: scale(0.98);
+}
+
+main {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: var(--bg);
+}
+
+svg#stage {
+  width: 90%;
+  height: 90%;
+  max-width: 1200px;
+  max-height: 1200px;
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  #app { flex-direction: column; }
+  aside { 
+    width: 100%; 
+    height: auto; 
+    padding: 40px 30px; 
+    border-right: none; 
+    border-bottom: 1px solid var(--border); 
+    order: 2; 
+    overflow-y: auto; 
+  }
+  main { order: 1; min-height: 50vh; }
+  h1 { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <aside>
+    <div class="hubs-title">
+      <h1>FLOW SCULPTOR</h1>
+    </div>
+    
+    <div class="toggle-group" id="btnToggleAnim">
+      <label>ANIMATE</label>
+      <div class="toggle-switch"></div>
+    </div>
+    
+    <div class="slider-group">
+      <label>Density <span class="val" id="val_Density">24</span></label>
+      <input type="range" id="sl_Density" min="1" max="50" step="1" value="24">
+    </div>
+    
+    <div class="slider-group">
+      <label>Wavelength <span class="val" id="val_Wavelength">150</span></label>
+      <input type="range" id="sl_Wavelength" min="20" max="400" step="1" value="150">
+    </div>
+    
+    <div class="slider-group">
+      <label>Amplitude <span class="val" id="val_Amplitude">60</span></label>
+      <input type="range" id="sl_Amplitude" min="0" max="250" step="1" value="60">
+    </div>
+    
+    <div class="slider-group">
+      <label>Turbulence <span class="val" id="val_Turbulence">0.30</span></label>
+      <input type="range" id="sl_Turbulence" min="0" max="2" step="0.01" value="0.30">
+    </div>
+    
+    <div class="slider-group">
+      <label>Convergence <span class="val" id="val_Convergence">0.00</span></label>
+      <input type="range" id="sl_Convergence" min="-1.5" max="1.5" step="0.01" value="0.00">
+    </div>
+    
+    <button class="download" id="btnDownload">Download SVG</button>
+  </aside>
+  
+  <main>
+    <svg id="stage" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+      <g id="flowGroup"></g>
+    </svg>
+  </main>
+</div>
+
+<script>
+const UI = {
+  Density:     { el: document.getElementById('sl_Density'),     valEl: document.getElementById('val_Density'),     format: v => v.toFixed(0) },
+  Wavelength:  { el: document.getElementById('sl_Wavelength'),  valEl: document.getElementById('val_Wavelength'),  format: v => v.toFixed(0) },
+  Amplitude:   { el: document.getElementById('sl_Amplitude'),   valEl: document.getElementById('val_Amplitude'),   format: v => v.toFixed(0) },
+  Turbulence:  { el: document.getElementById('sl_Turbulence'),  valEl: document.getElementById('val_Turbulence'),  format: v => v.toFixed(2) },
+  Convergence: { el: document.getElementById('sl_Convergence'), valEl: document.getElementById('val_Convergence'), format: v => v.toFixed(2) }
+};
+
+const params = {};
+
+let isToggleOn = false;
+let isSliderActive = false;
+let basePhase = 0;
+let lastTimestamp = performance.now();
+
+const btnToggleAnim = document.getElementById('btnToggleAnim');
+btnToggleAnim.addEventListener('click', () => {
+  isToggleOn = !isToggleOn;
+  if(isToggleOn) btnToggleAnim.classList.add('active');
+  else btnToggleAnim.classList.remove('active');
+});
+
+function initParams() {
+  const setSliderActive = () => { isSliderActive = true; };
+  const setSliderInactive = () => { isSliderActive = false; };
+  
+  document.addEventListener('mouseup', setSliderInactive);
+  document.addEventListener('touchend', setSliderInactive, {passive: true});
+
+  Object.keys(UI).forEach(key => {
+    const el = UI[key].el;
+    params[key] = parseFloat(el.value);
+    
+    el.addEventListener('input', () => {
+      params[key] = parseFloat(el.value);
+      UI[key].valEl.textContent = UI[key].format(params[key]);
+    });
+    
+    el.addEventListener('mousedown', setSliderActive);
+    el.addEventListener('touchstart', setSliderActive, {passive: true});
+  });
+}
+initParams();
+
+const flowGroup = document.getElementById('flowGroup');
+
+function syncPaths(count) {
+  const currentCount = flowGroup.children.length;
+  if (currentCount < count) {
+    for (let i = currentCount; i < count; i++) {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", "#888888");
+      path.setAttribute("stroke-width", "0.8");
+      const opacity = 0.4 + Math.random() * 0.4;
+      path.setAttribute("stroke-opacity", opacity.toFixed(2));
+      flowGroup.appendChild(path);
+    }
+  } else if (currentCount > count) {
+    for (let i = currentCount - 1; i >= count; i--) {
+      flowGroup.removeChild(flowGroup.children[i]);
+    }
+  }
+}
+
+function updatePaths(currentPhase) {
+  const count = Math.floor(params.Density);
+  syncPaths(count);
+  
+  const stepX = 5; 
+  const minX = 0;
+  const maxX = 1000;
+  
+  const spanY = 700; 
+  const startY = 500 - (spanY / 2);
+  
+  for (let i = 0; i < count; i++) {
+    let d = "";
+    const ni = count > 1 ? i / (count - 1) : 0.5; 
+    const baseLineY = startY + ni * spanY;
+    
+    const tOffset = ni * (params.Turbulence * 15);
+    
+    for (let x = minX; x <= maxX; x += stepX) {
+      const focus = Math.sin((x / maxX) * Math.PI);
+      const spread = 1.0 - (params.Convergence * focus);
+      
+      let y = 500 + (baseLineY - 500) * spread;
+      
+      let wave1 = Math.sin((x / params.Wavelength) + currentPhase + tOffset);
+      let wave2 = Math.sin((x / (params.Wavelength * 0.43)) - currentPhase * 1.3 + tOffset * 2.5);
+      
+      let noise = (wave1 * (1 - Math.min(params.Turbulence, 1)*0.5)) + (wave2 * Math.min(params.Turbulence, 1)*0.5);
+      
+      y += noise * params.Amplitude * Math.max(0.1, spread);
+      
+      if (x === minX) {
+        d += `M ${x.toFixed(2)} ${y.toFixed(2)} `;
+      } else {
+        d += `L ${x.toFixed(2)} ${y.toFixed(2)} `;
+      }
+    }
+    flowGroup.children[i].setAttribute('d', d);
+  }
+}
+
+function render(timestamp) {
+  const dt = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+  
+  if (isToggleOn || isSliderActive) {
+    basePhase -= (dt / 1000) * 2.0; 
+  }
+  
+  updatePaths(basePhase);
+  
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+
+document.getElementById('btnDownload').addEventListener('click', () => {
+  const svgEl = document.getElementById('stage');
+  const clone = svgEl.cloneNode(true);
+  clone.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+  
+  const svgData = new XMLSerializer().serializeToString(clone);
+  const blob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"});
+  
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "flow_sculptor.svg";
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
